@@ -6,8 +6,10 @@ export default class Circuit{
 	constructor(circuit){
 		this._pointList=[];
 		this._lineList=[];
+		let extreme = getExtremum(circuit);
+		console.log(extreme);
 		circuit.forEach((coord)=>{
-			let point = new Point(Circuit.pointNbr,coord[0],coord[1]);
+			let point = new Point(Circuit.pointNbr,coord[0]-extreme[0][0],coord[1]-extreme[0][1]);
 
 			let pointDiv = point.htmlElement();
 
@@ -58,6 +60,21 @@ export default class Circuit{
 			}
 		});
 	}
+}
+
+function getExtremum(array){
+	let extreme=[[99999,99999],[-99999,-99999]];
+	for (const i of array) {
+ 		for(let coord=0;coord<i.length;coord++){
+ 			if(i[coord] > extreme[1][coord]){
+				extreme[1][coord]=i[coord]
+ 			}
+			if(i[coord] < extreme[0][coord]){
+				extreme[0][coord]=i[coord]
+			}
+ 		}
+	}
+	return extreme
 }
 
 function move(elmt,x,y) {
