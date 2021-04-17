@@ -3,7 +3,7 @@ import c4d
 def main():
     obj = doc.GetActiveObject()
     i=0
-    pts_nbr=108
+    pts_nbr=obj.GetSegment(0)['cnt']/2
     spline=[]
     while i<pts_nbr:
         spline.append(obj.GetSplinePoint(i/pts_nbr))
@@ -13,6 +13,5 @@ def main():
         print('[',i[0],',',i[2],'],')
     print(']')
 
-# Execute main()
 if __name__=='__main__':
     main()
