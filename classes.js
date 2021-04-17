@@ -14,20 +14,20 @@ export default class Circuit{
 		let extreme = getExtremum(circuit);
 		let resize = getResize(extreme);
 		document.addEventListener('keydown', (event)=>{
-		  if (event.ctrlKey && event.key === 'z') {
-		    let precedent = this._precedent.pop();
-		    let circuit = precedent._pointList.map((point)=>[point._x,point._y]);
-		    console.log(circuit);
-		    this.deconstruct();
-		    Circuit.pointNbr=0;
-		    Circuit.lineNbr=0;
-		    delete this;
-		    new Circuit(circuit);
+		    if (event.ctrlKey && event.key === 'z') {
+		        let precedent = this._precedent.pop();
+		        let circuit = precedent._pointList.map((point)=>[point._x,point._y]);
+		        console.log(circuit);
+		        this.deconstruct();
+		        Circuit.pointNbr=0;
+		        Circuit.lineNbr=0;
+		        delete this;
+		        new Circuit(circuit);
 		  }
 		});
 		circuit.forEach((coord)=>{
 			let point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize);
-
+			this._pointList.push(point);
 			let pointDiv = point.htmlElement();
 
 			document.getElementById('points').appendChild(pointDiv);
@@ -37,42 +37,44 @@ export default class Circuit{
 			    move(pointDiv,e.clientX,e.clientY);
 			});
 			if(Circuit.pointNbr==circuit.length){
-				pointDiv.addEventListener("dragend",(e)=>{
-					move(pointDiv,e.clientX,e.clientY);
-					let line = connect(document.getElementById('point-'+(point._id-1)),document.getElementById('point-'+(point._id)),'red',1,this._lineList[point._id-1]);
-					this._lineList[point._id-1] = line;
-					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-0'),'red',1,this._lineList[point._id]);
-					this._lineList[point._id] = lineTwo;
-				});
+				this.moveAll(pointDiv,point,point._id-1,point._id,0);
 			}
 			else if(Circuit.pointNbr-1==0){
-				pointDiv.addEventListener("dragend",(e)=>{
-					move(pointDiv,e.clientX,e.clientY);
-					let line = connect(document.getElementById('point-'+(Circuit.pointNbr-1)),document.getElementById('point-'+(point._id)),'red',1,this._lineList[Circuit.pointNbr-1]);
-					this._lineList[Circuit.pointNbr-2] = line;
-					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-'+(point._id+1)),'red',1,this._lineList[point._id]);
-					this._lineList[point._id-1] = lineTwo;
-				});
+				this.moveAll(pointDiv,point,Circuit.pointNbr-1,point._id,point._id+1);
 			}
 			else{
-				pointDiv.addEventListener("dragend",(e)=>{
-					move(pointDiv,e.clientX,e.clientY);
-					let line = connect(document.getElementById('point-'+(point._id-1)),document.getElementById('point-'+(point._id)),'red',1,this._lineList[point._id-1]);
-					this._lineList[point._id-1] = line;
-					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-'+(point._id+1)),'red',1,this._lineList[point._id]);
-					this._lineList[point._id] = lineTwo;
-				});
+				this.moveAll(pointDiv,point,point._id-1,point._id,point._id+1);
 			}
 
-			this._pointList.push(point);
 			if(Circuit.pointNbr-2>=0){
-				let line = connect(document.getElementById('point-'+(Circuit.pointNbr-2)),document.getElementById('point-'+(Circuit.pointNbr-1)),'red',1);
-				this._lineList.push(line);
+				this.addLine(Circuit.pointNbr-2,Circuit.pointNbr-1);
 			}
 			if(Circuit.pointNbr==circuit.length){
-				let line = connect(document.getElementById('point-'+((Circuit.pointNbr)-1)),document.getElementById('point-0'),'red',1);
-				this._lineList.push(line);
+				this.addLine(Circuit.pointNbr-1,0);
 			}
+		});
+	}
+
+	addLine(id1,id2){
+		let line = connect(document.getElementById('point-'+id1),document.getElementById('point-'+id2),'red',1);
+		this._lineList.push(line);
+	}
+
+	moveAll(pointDiv,point,id1,id2,id3){
+		pointDiv.addEventListener("dragend",(e)=>{
+			move(pointDiv,e.clientX,e.clientY);
+			let movedPoint;
+		    this._pointList.forEach((moved)=>{
+		    	if(moved._id.toString()==pointDiv.id.split('-')[1]){
+		    		movedPoint = moved;
+		    	}
+
+		    });
+			movedPoint.move(e.clientX,e.clientY);
+			let line = connect(document.getElementById('point-'+id1),document.getElementById('point-'+id2),'red',1,this._lineList[id1]);
+			this._lineList[id1] = line;
+			let lineTwo = connect(document.getElementById('point-'+id2),document.getElementById('point-'+id3),'red',1,this._lineList[id2]);
+			this._lineList[id2] = lineTwo;
 		});
 	}
 
@@ -147,7 +149,6 @@ function connect(div1, div2, color, thickness, update=false, dot=4) {
 }
 
 function getOffset( el ) {
-	console.log(el);
     let rect = el.getBoundingClientRect();
     return {
         left: rect.left + window.pageXOffset,
@@ -181,6 +182,11 @@ class Point{
 		point.style.left=this._x+"px";
 		point.setAttribute('draggable',true);
 		return point;
+	}
+
+	move(x,y){
+		this._x=x;
+		this._y=y;
 	}
 }
 
