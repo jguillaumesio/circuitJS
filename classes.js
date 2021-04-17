@@ -63,8 +63,8 @@ export default class Circuit{
 }
 
 function windowSize(){
-	var w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	return [w,h-10];
 }
 
@@ -94,17 +94,18 @@ function move(elmt,x,y) {
     elmt.style.left = x + "px";
 }
 
-function connect(div1, div2, color, thickness, update=false) {
-    var off1 = getOffset(div1);
-    var off2 = getOffset(div2);
-    var x1 = off1.left + off1.width;
-    var y1 = off1.top + off1.height;
-    var x2 = off2.left + off2.width;
-    var y2 = off2.top;
-    var length = getDistance(x1,x2,y1-5,y2+5);
-    var cx = ((x1 + x2) / 2) - (length / 2) - 5 ;
-    var cy = ((y1 + y2) / 2) - (thickness / 2);
-    var angle = getAngle(x1,x2,y1-5,y2+5);
+function connect(div1, div2, color, thickness, update=false, dot=4) {
+	let mid = dot/2;
+    let off1 = getOffset(div1);
+    let off2 = getOffset(div2);
+    let x1 = off1.left + off1.width;
+    let y1 = off1.top + off1.height;
+    let x2 = off2.left + off2.width;
+    let y2 = off2.top;
+    let length = getDistance(x1,x2,y1-mid,y2+mid);
+    let cx = ((x1 + x2) / 2) - (length / 2) - mid ;
+    let cy = ((y1 + y2) / 2) - (thickness / 2);
+    let angle = getAngle(x1,x2,y1-mid,y2+mid);
     if(update == false){
     	let line = new Line(Circuit.lineNbr,cx,cy,length,angle);
     	document.getElementById('lines').appendChild(line.htmlElement());
@@ -121,7 +122,7 @@ function connect(div1, div2, color, thickness, update=false) {
 }
 
 function getOffset( el ) {
-    var rect = el.getBoundingClientRect();
+    let rect = el.getBoundingClientRect();
     return {
         left: rect.left + window.pageXOffset,
         top: rect.top + window.pageYOffset,
