@@ -6,8 +6,25 @@ export default class Circuit{
 	constructor(circuit){
 		this._pointList=[];
 		this._lineList=[];
+		this._precedent=[];
+		this.draw(circuit);
+	}
+
+	draw(circuit){
 		let extreme = getExtremum(circuit);
 		let resize = getResize(extreme);
+		document.addEventListener('keydown', (event)=>{
+		  if (event.ctrlKey && event.key === 'z') {
+		    let precedent = this._precedent.pop();
+		    let circuit = precedent._pointList.map((point)=>[point._x,point._y]);
+		    console.log(circuit);
+		    this.deconstruct();
+		    Circuit.pointNbr=0;
+		    Circuit.lineNbr=0;
+		    delete this;
+		    new Circuit(circuit);
+		  }
+		});
 		circuit.forEach((coord)=>{
 			let point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize);
 
@@ -16,6 +33,7 @@ export default class Circuit{
 			document.getElementById('points').appendChild(pointDiv);
 
 			pointDiv.addEventListener("drag",(e)=>{
+				this._precedent.push(this);
 			    move(pointDiv,e.clientX,e.clientY);
 			});
 			if(Circuit.pointNbr==circuit.length){
@@ -25,7 +43,6 @@ export default class Circuit{
 					this._lineList[point._id-1] = line;
 					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-0'),'red',1,this._lineList[point._id]);
 					this._lineList[point._id] = lineTwo;
-					console.log(this._lineList);
 				});
 			}
 			else if(Circuit.pointNbr-1==0){
@@ -35,7 +52,6 @@ export default class Circuit{
 					this._lineList[Circuit.pointNbr-2] = line;
 					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-'+(point._id+1)),'red',1,this._lineList[point._id]);
 					this._lineList[point._id-1] = lineTwo;
-					console.log(this._lineList);
 				});
 			}
 			else{
@@ -45,7 +61,6 @@ export default class Circuit{
 					this._lineList[point._id-1] = line;
 					let lineTwo = connect(document.getElementById('point-'+(point._id)),document.getElementById('point-'+(point._id+1)),'red',1,this._lineList[point._id]);
 					this._lineList[point._id] = lineTwo;
-					console.log(this._lineList);
 				});
 			}
 
@@ -59,6 +74,16 @@ export default class Circuit{
 				this._lineList.push(line);
 			}
 		});
+	}
+
+	deconstruct(){
+		let destruct=['lines','points'];
+		for(const div of destruct){
+			const el = document.getElementById(div);
+		  	while (el.firstChild){
+		  		el.removeChild(el.firstChild);
+		  	}
+		}
 	}
 }
 
@@ -122,6 +147,7 @@ function connect(div1, div2, color, thickness, update=false, dot=4) {
 }
 
 function getOffset( el ) {
+	console.log(el);
     let rect = el.getBoundingClientRect();
     return {
         left: rect.left + window.pageXOffset,
@@ -185,6 +211,5 @@ class Line{
 		line.style.left=this._x+"px";
 		line.style.width=this._length+"px";
 		line.style.transform="rotate("+this._angle+"deg)";
-		console.log(line);
 	}
 }
