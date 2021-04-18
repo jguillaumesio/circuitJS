@@ -16,36 +16,36 @@ export default class Circuit{
 		let resize = getResize(extreme);
 		document.addEventListener('keydown', (event)=>{
 		    if (event.ctrlKey && event.key === 'z') {
-		        let precedent = this._precedent.pop();
-		        let circuit = precedent._pointList.map((point)=>[point._x,point._y]);
-		        console.log(circuit);
-		        this.deconstruct();
-		        Circuit.pointNbr=0;
-		        Circuit.lineNbr=0;
-		        delete this;
-		        new Circuit(circuit);
+		    	//TO-DO
 		  }
 		});
 		circuit.forEach((coord)=>{
-			let point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize);
+			let point;
+			if(Circuit.pointNbr==0){
+				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,circuit.length-1,Circuit.pointNbr+1);
+			}
+			else if(Circuit.pointNbr==circuit.length-1){
+				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,Circuit.pointNbr-1,0);
+			}
+			else{
+				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,Circuit.pointNbr-1,Circuit.pointNbr+1);
+			}
+
 			this._pointList.push(point);
 			let pointDiv = point.htmlElement();
 
 			document.getElementById('points').appendChild(pointDiv);
 
+			pointDiv.addEventListener("dragstart",(e)=>{
+				//TO-DO
+				//this._precedent.push([point,point._id]);
+			    //console.log(this._precedent);
+			});
 			pointDiv.addEventListener("drag",(e)=>{
-				this._precedent.push(this);
 			    move(pointDiv,e.clientX,e.clientY);
 			});
-			if(Circuit.pointNbr==circuit.length){
-				this.moveAll(pointDiv,point,point._id-1,point._id,0);
-			}
-			else if(Circuit.pointNbr-1==0){
-				this.moveAll(pointDiv,point,Circuit.pointNbr-1,point._id,point._id+1);
-			}
-			else{
-				this.moveAll(pointDiv,point,point._id-1,point._id,point._id+1);
-			}
+			
+			this.moveAll(pointDiv,point._previous,point._id,point._next);
 
 			if(Circuit.pointNbr-2>=0){
 				this.addLine(Circuit.pointNbr-2,Circuit.pointNbr-1);
@@ -54,6 +54,7 @@ export default class Circuit{
 				this.addLine(Circuit.pointNbr-1,0);
 			}
 		});
+		console.log(this._pointList);
 	}
 
 	addLine(id1,id2){
@@ -61,14 +62,13 @@ export default class Circuit{
 		this._lineList.push(line);
 	}
 
-	moveAll(pointDiv,point,id1,id2,id3){
+	moveAll(pointDiv,id1,id2,id3){
 		pointDiv.addEventListener("dragend",(e)=>{
 			let movedPoint;
 		    this._pointList.forEach((moved)=>{
 		    	if(moved._id.toString()==pointDiv.id.split('-')[1]){
 		    		movedPoint = moved;
 		    	}
-
 		    });
 		    movedPoint._x=e.clientX;
 		    movedPoint._y=e.clientY;
@@ -167,10 +167,12 @@ function getDistance(x0,x1,y0,y1){
 }
 
 class Point{
-	constructor(id,x,y){
+	constructor(id,x,y,previous=false,next=false){
 		this._id=id;
 		this._x=x;
 		this._y=y;
+		this._previous=previous;
+		this._next=next;
 		Circuit.pointNbr+=1;
 	}
 
