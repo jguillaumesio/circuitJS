@@ -16,7 +16,17 @@ export default class Circuit{
 		let resize = getResize(extreme);
 		document.addEventListener('keydown', (event)=>{
 		    if (event.ctrlKey && event.key === 'z') {
-		    	//TO-DO
+		    	if(this._precedent.length != 0){
+		    		let previous = this._precedent.pop();
+			    	let point = this._pointList[previous[0]];
+			    	let line = this._lineList[point._previous];
+			    	let lineTwo = this._lineList[point._id]
+			    	point._x=previous[1];
+			    	point._y=previous[2];
+			    	point.updateElement();
+			    	connect(document.getElementById('point-'+point._previous),document.getElementById('point-'+point._id),'red',1,line);
+			    	connect(document.getElementById('point-'+point._id),document.getElementById('point-'+point._next),'red',1,lineTwo);
+		    	}
 		  }
 		});
 		circuit.forEach((coord)=>{
@@ -37,9 +47,7 @@ export default class Circuit{
 			document.getElementById('points').appendChild(pointDiv);
 
 			pointDiv.addEventListener("dragstart",(e)=>{
-				//TO-DO
-				//this._precedent.push([point,point._id]);
-			    //console.log(this._precedent);
+				this._precedent.push([point._id,point._x,point._y]);
 			});
 			pointDiv.addEventListener("drag",(e)=>{
 			    move(pointDiv,e.clientX,e.clientY);
