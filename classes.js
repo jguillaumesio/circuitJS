@@ -2,6 +2,7 @@ export default class Circuit{
 
 	static pointNbr=0;
 	static lineNbr=0;
+	static createMode=true;//pass to false to move
 
 	constructor(circuit){
 		this._pointList=[];
@@ -62,7 +63,6 @@ export default class Circuit{
 
 	moveAll(pointDiv,point,id1,id2,id3){
 		pointDiv.addEventListener("dragend",(e)=>{
-			move(pointDiv,e.clientX,e.clientY);
 			let movedPoint;
 		    this._pointList.forEach((moved)=>{
 		    	if(moved._id.toString()==pointDiv.id.split('-')[1]){
@@ -70,11 +70,11 @@ export default class Circuit{
 		    	}
 
 		    });
-			movedPoint.move(e.clientX,e.clientY);
+		    movedPoint._x=e.clientX;
+		    movedPoint._y=e.clientY;
+			movedPoint.updateElement();
 			let line = connect(document.getElementById('point-'+id1),document.getElementById('point-'+id2),'red',1,this._lineList[id1]);
-			this._lineList[id1] = line;
 			let lineTwo = connect(document.getElementById('point-'+id2),document.getElementById('point-'+id3),'red',1,this._lineList[id2]);
-			this._lineList[id2] = lineTwo;
 		});
 	}
 
@@ -116,9 +116,9 @@ function getExtremum(array){
 	return extreme
 }
 
-function move(elmt,x,y) {
-    elmt.style.top = y + "px";
-    elmt.style.left = x + "px";
+function move(elmt,x,y){
+	elmt._x=x;
+	elmt._y=y;
 }
 
 function connect(div1, div2, color, thickness, update=false, dot=4) {
@@ -184,9 +184,10 @@ class Point{
 		return point;
 	}
 
-	move(x,y){
-		this._x=x;
-		this._y=y;
+	updateElement(){
+		let point = document.getElementById('point-'+this._id);
+		point.style.top=this._y+"px";
+		point.style.left=this._x+"px";
 	}
 }
 
