@@ -18,14 +18,20 @@ export default class Circuit{
 		    if (event.ctrlKey && event.key === 'z') {
 		    	if(this._precedent.length != 0){
 		    		let previous = this._precedent.pop();
-			    	let point = this._pointList[previous[0]];
+
+			    	let point = this._pointList[previous[0]]; //actual point
+			  		let previousPoint = this._pointList[point._previous]; //previous point
+			    	let nextPoint = this._pointList[point._next]; //next point
+
 			    	let line = this._lineList[point._previous];
 			    	let lineTwo = this._lineList[point._id]
+
 			    	point._x=previous[1];
 			    	point._y=previous[2];
 			    	point.updateElement();
-			    	connect(document.getElementById('point-'+point._previous),document.getElementById('point-'+point._id),'red',1,line);
-			    	connect(document.getElementById('point-'+point._id),document.getElementById('point-'+point._next),'red',1,lineTwo);
+
+			    	connect(previousPoint._domObject,point._domObject,'red',1,line);
+			    	connect(point._domObject,nextPoint._domObject,'red',1,lineTwo);
 		    	}
 		  }
 		});
@@ -42,18 +48,17 @@ export default class Circuit{
 			}
 
 			this._pointList.push(point);
-			let pointDiv = point.htmlElement();
 
-			document.getElementById('points').appendChild(pointDiv);
+			document.getElementById('points').appendChild(point._domObject);
 
-			pointDiv.addEventListener("dragstart",(e)=>{
+			point._domObject.addEventListener("dragstart",(e)=>{
 				this._precedent.push([point._id,point._x,point._y]);
 			});
-			pointDiv.addEventListener("drag",(e)=>{
-			    move(pointDiv,e.clientX,e.clientY);
+			point._domObject.addEventListener("drag",(e)=>{
+			    move(point._domObject,e.clientX,e.clientY);
 			});
 			
-			this.moveAll(pointDiv,point._previous,point._id,point._next);
+			this.moveAll(point._domObject,point._previous,point._id,point._next);
 
 			if(Circuit.pointNbr-2>=0){
 				this.addLine(Circuit.pointNbr-2,Circuit.pointNbr-1);
@@ -62,11 +67,10 @@ export default class Circuit{
 				this.addLine(Circuit.pointNbr-1,0);
 			}
 		});
-		console.log(this._pointList);
 	}
 
 	addLine(id1,id2){
-		let line = connect(document.getElementById('point-'+id1),document.getElementById('point-'+id2),'red',1);
+		let line = connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,'red',1);
 		this._lineList.push(line);
 	}
 
@@ -81,19 +85,9 @@ export default class Circuit{
 		    movedPoint._x=e.clientX;
 		    movedPoint._y=e.clientY;
 			movedPoint.updateElement();
-			let line = connect(document.getElementById('point-'+id1),document.getElementById('point-'+id2),'red',1,this._lineList[id1]);
-			let lineTwo = connect(document.getElementById('point-'+id2),document.getElementById('point-'+id3),'red',1,this._lineList[id2]);
+			let line = connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,'red',1,this._lineList[id1]);
+			let lineTwo = connect(this._pointList[id2]._domObject,this._pointList[id3]._domObject,'red',1,this._lineList[id2]);
 		});
-	}
-
-	deconstruct(){
-		let destruct=['lines','points'];
-		for(const div of destruct){
-			const el = document.getElementById(div);
-		  	while (el.firstChild){
-		  		el.removeChild(el.firstChild);
-		  	}
-		}
 	}
 }
 
@@ -143,7 +137,7 @@ function connect(div1, div2, color, thickness, update=false, dot=4) {
     let angle = getAngle(x1,x2,y1-mid,y2+mid);
     if(update == false){
     	let line = new Line(Circuit.lineNbr,cx,cy,length,angle);
-    	document.getElementById('lines').appendChild(line.htmlElement());
+    	document.getElementById('lines').appendChild(line._domObject);
     	return line;
     }
     else{
@@ -174,59 +168,64 @@ function getDistance(x0,x1,y0,y1){
 	return ((x1-x0)**2+(y1-y0)**2)**0.5
 }
 
-class Point{
-	constructor(id,x,y,previous=false,next=false){
+class Object{
+	constructor(id,x,y){
 		this._id=id;
 		this._x=x;
 		this._y=y;
+		this._domObject=null;
+	}
+
+	htmlElement(pointOrLine){
+		let object = document.createElement("div");
+		object.id = pointOrLine+'-'+this._id;
+		object.classList.add(pointOrLine);
+		object.style.top=this._y+"px";
+		object.style.left=this._x+"px";
+		return object;
+	}
+
+	updateElement(){
+		this._domObject.style.top=this._y+"px";
+		this._domObject.style.left=this._x+"px";
+	}
+}
+
+class Point extends Object{
+	constructor(id,x,y,previous=false,next=false){
+		super(id,x,y);
 		this._previous=previous;
 		this._next=next;
+		this._domObject=this.htmlElement();
 		Circuit.pointNbr+=1;
 	}
 
 	htmlElement(){
-		let point = document.createElement("div");
-		point.classList.add('point');
-		point.id = 'point-'+this._id;
-		point.style.top=this._y+"px";
-		point.style.left=this._x+"px";
-		point.setAttribute('draggable',true);
-		return point;
-	}
-
-	updateElement(){
-		let point = document.getElementById('point-'+this._id);
-		point.style.top=this._y+"px";
-		point.style.left=this._x+"px";
+		let object = super.htmlElement('point');
+		object.setAttribute('draggable',true);
+		return object;
 	}
 }
 
-class Line{
+class Line extends Object{
 	constructor(id,x,y,length,angle){
-		this._id=id;
-		this._x=x;
-		this._y=y;
+		super(id,x,y);
 		this._length=length;
 		this._angle=angle;
+		this._domObject=this.htmlElement();
 		Circuit.lineNbr+=1;
 	}
 
 	htmlElement(){
-		let line = document.createElement("div");
-		line.classList.add('line');
-		line.id = 'line-'+this._id;
-		line.style.top=this._y+"px";
-		line.style.left=this._x+"px";
-		line.style.width=this._length+"px";
-		line.style.transform="rotate("+this._angle+"deg)";
-		return line;
+		let object = super.htmlElement('line');
+		object.style.width=this._length+"px";
+		object.style.transform="rotate("+this._angle+"deg)";
+		return object;
 	}
 
 	updateElement(){
-		let line = document.getElementById('line-'+this._id);
-		line.style.top=this._y+"px";
-		line.style.left=this._x+"px";
-		line.style.width=this._length+"px";
-		line.style.transform="rotate("+this._angle+"deg)";
+		super.updateElement();
+		this._domObject.style.width=this._length+"px";
+		this._domObject.style.transform="rotate("+this._angle+"deg)";
 	}
 }
