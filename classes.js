@@ -30,8 +30,8 @@ export default class Circuit{
 			    	point._y=previous[2];
 			    	point.updateElement();
 
-			    	connect(previousPoint._domObject,point._domObject,'red',1,line);
-			    	connect(point._domObject,nextPoint._domObject,'red',1,lineTwo);
+			    	this.updateLine(previousPoint._id,point._id,line);
+			    	this.updateLine(point._id,nextPoint._id,lineTwo);
 		    	}
 		  }
 		});
@@ -54,9 +54,6 @@ export default class Circuit{
 			point._domObject.addEventListener("dragstart",(e)=>{
 				this._precedent.push([point._id,point._x,point._y]);
 			});
-			point._domObject.addEventListener("drag",(e)=>{
-			    move(point._domObject,e.clientX,e.clientY);
-			});
 			
 			this.moveAll(point._domObject,point._previous,point._id,point._next);
 
@@ -70,8 +67,11 @@ export default class Circuit{
 	}
 
 	addLine(id1,id2){
-		let line = connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,'red',1);
-		this._lineList.push(line);
+		this._lineList.push(connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject));
+	}
+
+	updateLine(id1,id2,line){
+		connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,line);
 	}
 
 	moveAll(pointDiv,id1,id2,id3){
@@ -85,8 +85,8 @@ export default class Circuit{
 		    movedPoint._x=e.clientX;
 		    movedPoint._y=e.clientY;
 			movedPoint.updateElement();
-			let line = connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,'red',1,this._lineList[id1]);
-			let lineTwo = connect(this._pointList[id2]._domObject,this._pointList[id3]._domObject,'red',1,this._lineList[id2]);
+			let line = connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,this._lineList[id1]);
+			let lineTwo = connect(this._pointList[id2]._domObject,this._pointList[id3]._domObject,this._lineList[id2]);
 		});
 	}
 }
@@ -118,12 +118,7 @@ function getExtremum(array){
 	return extreme
 }
 
-function move(elmt,x,y){
-	elmt._x=x;
-	elmt._y=y;
-}
-
-function connect(div1, div2, color, thickness, update=false, dot=4) {
+function connect(div1, div2, update=false, dot=4,thickness=1, color='red') {
 	let mid = dot/2;
     let off1 = getOffset(div1);
     let off2 = getOffset(div2);
@@ -165,7 +160,7 @@ function getAngle(x0,x1,y0,y1){
 }
 
 function getDistance(x0,x1,y0,y1){
-	return ((x1-x0)**2+(y1-y0)**2)**0.5
+	return ((x1-x0)**2+(y1-y0)**2)**0.5;
 }
 
 class Object{
