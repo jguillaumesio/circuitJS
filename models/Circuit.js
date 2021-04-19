@@ -2,12 +2,11 @@ import { Point,Line } from './index.js'
 
 export default class Circuit{
 
-	static _pointList=[[],[]];
-	static _lineList=[[],[]];
+	static _pointList={"outside":[],"inside":[]};
+	static _lineList={"outside":[],"inside":[]};
 	static pointNbr=0;
 	static lineNbr=0;
 	static _precedent=[];
-	//static createMode=true; //pass to false to move
 	static dotSize;
 
 	constructor(outside,inside,dotSize){
@@ -64,22 +63,11 @@ export default class Circuit{
 	}
 
 	static addLine(spline,id1,id2){
-		if(spline=="outside"){
-			Circuit.connect(spline,Circuit._pointList[0][id1]._domObject,Circuit._pointList[0][id2]._domObject);
-		}
-		else{
-			Circuit.connect(spline,Circuit._pointList[1][id1]._domObject,Circuit._pointList[1][id2]._domObject);
-		}
+		Circuit.connect(spline,Circuit._pointList[spline][id1]._domObject,Circuit._pointList[spline][id2]._domObject);
 	}
 
 	static updateLine(spline,id1,id2,line){
-		if(spline=="outside"){
-			Circuit.connect(spline,Circuit._pointList[0][id1]._domObject,Circuit._pointList[0][id2]._domObject,line);
-		}
-		else{
-			Circuit.connect(spline,Circuit._pointList[1][id1]._domObject,Circuit._pointList[1][id2]._domObject,line);
-
-		}
+		Circuit.connect(spline,Circuit._pointList[spline][id1]._domObject,Circuit._pointList[spline][id2]._domObject,line);
 	}
 
 	static connect(spline,div1, div2, update=false, dot=Circuit.dotSize,thickness=1, color='red') {

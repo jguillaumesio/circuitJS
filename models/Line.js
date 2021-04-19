@@ -7,12 +7,7 @@ export default class Line extends Object{
 		this._angle=angle;
 		this._domObject=this.htmlElement();
 		Circuit.lineNbr+=1;
-		if(this._spline=='outside'){
-			Circuit._lineList[0].push(this);
-		}
-		else{
-			Circuit._lineList[1].push(this);
-		}
+		Circuit._lineList[this._spline].push(this);
 	}
 
 	htmlElement(){
