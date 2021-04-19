@@ -31,8 +31,8 @@ export default class Circuit{
 					point._y=previousState[2];
 					point.updateElement();
 
-					Circuit.updateLine(point._spline,previousPoint._id,point._id,line);
-					Circuit.updateLine(point._spline,point._id,nextPoint._id,lineTwo);
+					Circuit.connect(point._spline,previousPoint._domObject,point._domObject,line);
+					Circuit.connect(point._spline,point._domObject,nextPoint._domObject,lineTwo);
 				}
 			}
 		});
@@ -52,22 +52,14 @@ export default class Circuit{
 			}
 
 			if(Circuit.pointNbr-2>=0){
-				Circuit.addLine(spline,Circuit.pointNbr-2,Circuit.pointNbr-1);
+				Circuit.connect(spline,Circuit._pointList[spline][Circuit.pointNbr-2]._domObject,Circuit._pointList[spline][Circuit.pointNbr-1]._domObject);
 			}
 			if(Circuit.pointNbr==circuit.length){
-				Circuit.addLine(spline,Circuit.pointNbr-1,0);
+				Circuit.connect(spline,Circuit._pointList[spline][Circuit.pointNbr-1]._domObject,Circuit._pointList[spline][0]._domObject);
 			}
 		});
 		Circuit.pointNbr=0;
 		Circuit.lineNbr=0;
-	}
-
-	static addLine(spline,id1,id2){
-		Circuit.connect(spline,Circuit._pointList[spline][id1]._domObject,Circuit._pointList[spline][id2]._domObject);
-	}
-
-	static updateLine(spline,id1,id2,line){
-		Circuit.connect(spline,Circuit._pointList[spline][id1]._domObject,Circuit._pointList[spline][id2]._domObject,line);
 	}
 
 	static connect(spline,div1, div2, update=false, dot=Circuit.dotSize,thickness=1, color='red') {
@@ -126,7 +118,6 @@ export default class Circuit{
 	}
 
 	static getOffset(el){
-		//console.log(el);
 	    let rect = el.getBoundingClientRect();
 	    return {
 	        left: rect.left + window.pageXOffset,
