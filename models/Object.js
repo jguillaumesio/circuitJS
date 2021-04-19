@@ -1,14 +1,15 @@
 export default class Object{
-	constructor(id,x,y){
+	constructor(id,x,y,spline){
 		this._id=id;
 		this._x=x;
 		this._y=y;
+		this._spline=spline
 		this._domObject=null;
 	}
 
-	htmlElement(pointOrLine){
+	htmlElement(pointOrLine,spline){
 		let object = document.createElement("div");
-		object.id = pointOrLine+'-'+this._id;
+		object.id = spline+'-'+pointOrLine+'-'+this._id;
 		object.classList.add(pointOrLine);
 		object.style.top=this._y+"px";
 		object.style.left=this._x+"px";
