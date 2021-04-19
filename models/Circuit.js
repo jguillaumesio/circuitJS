@@ -2,15 +2,15 @@ import { Point,Line } from './index.js'
 
 export default class Circuit{
 
+	static _pointList=[];
+	static _lineList=[];
 	static pointNbr=0;
 	static lineNbr=0;
+	static _precedent=[];
 	//static createMode=true; //pass to false to move
 	static dotSize;
 
 	constructor(circuit,dotSize){
-		this._pointList=[];
-		this._lineList=[];
-		this._precedent=[];
 		Circuit.dotSize=dotSize;
 		this.draw(circuit);
 	}
@@ -20,18 +20,18 @@ export default class Circuit{
 		let resize = Circuit.getResize(extreme);
 		document.addEventListener('keydown', (event)=>{
 		    if (event.ctrlKey && event.key === 'z') {
-		    	if(this._precedent.length != 0){
-		    		let previous = this._precedent.pop();
+		    	if(Circuit._precedent.length != 0){
+		    		let previousState = Circuit._precedent.pop();
 
-			    	let point = this._pointList[previous[0]]; //actual point
-			  		let previousPoint = this._pointList[point._previous]; //previous point
-			    	let nextPoint = this._pointList[point._next]; //next point
+			    	let point = Circuit._pointList[previousState[0]]; //actual point
+			  		let previousPoint = Circuit._pointList[point._previous]; //previous point
+			    	let nextPoint = Circuit._pointList[point._next]; //next point
 
-			    	let line = this._lineList[point._previous];
-			    	let lineTwo = this._lineList[point._id]
+			    	let line = Circuit._lineList[point._previous];
+			    	let lineTwo = Circuit._lineList[point._id]
 
-			    	point._x=previous[1];
-			    	point._y=previous[2];
+			    	point._x=previousState[1];
+			    	point._y=previousState[2];
 			    	point.updateElement();
 
 			    	this.updateLine(previousPoint._id,point._id,line);
@@ -51,16 +51,6 @@ export default class Circuit{
 				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,Circuit.pointNbr-1,Circuit.pointNbr+1);
 			}
 
-			this._pointList.push(point);
-
-			document.getElementById('points').appendChild(point._domObject);
-
-			point._domObject.addEventListener("dragstart",(e)=>{
-				this._precedent.push([point._id,point._x,point._y]);
-			});
-			
-			this.moveAll(point._domObject,point._previous,point._id,point._next);
-
 			if(Circuit.pointNbr-2>=0){
 				this.addLine(Circuit.pointNbr-2,Circuit.pointNbr-1);
 			}
@@ -71,27 +61,11 @@ export default class Circuit{
 	}
 
 	addLine(id1,id2){
-		this._lineList.push(Circuit.connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject));
+		Circuit._lineList.push(Circuit.connect(Circuit._pointList[id1]._domObject,Circuit._pointList[id2]._domObject));
 	}
 
 	updateLine(id1,id2,line){
-		Circuit.connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,line);
-	}
-
-	moveAll(pointDiv,id1,id2,id3){
-		pointDiv.addEventListener("dragend",(e)=>{
-			let movedPoint;
-		    this._pointList.forEach((moved)=>{
-		    	if(moved._id.toString()==pointDiv.id.split('-')[1]){
-		    		movedPoint = moved;
-		    	}
-		    });
-		    movedPoint._x=e.clientX;
-		    movedPoint._y=e.clientY;
-			movedPoint.updateElement();
-			let line = Circuit.connect(this._pointList[id1]._domObject,this._pointList[id2]._domObject,this._lineList[id1]);
-			let lineTwo = Circuit.connect(this._pointList[id2]._domObject,this._pointList[id3]._domObject,this._lineList[id2]);
-		});
+		Circuit.connect(Circuit._pointList[id1]._domObject,Circuit._pointList[id2]._domObject,line);
 	}
 
 	static connect(div1, div2, update=false, dot=Circuit.dotSize,thickness=1, color='red') {
