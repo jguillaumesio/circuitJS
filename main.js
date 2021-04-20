@@ -1,34 +1,39 @@
-import * as Models from './models/index.js';
+import Creation from './classes/Creation.js';
 
-let inside=[
-[ -27.676595744680853 , 144.51063829787236 ],
-[ 46.05520534277126 , 59.90895433969497 ],
-[ 181.80731919582018 , 50.98048616216857 ],
-[ 275.5310483504903 , 42.41213831498385 ],
-[ 296.42891095349506 , -51.53807985591879 ],
-[ 253.8405311802395 , -139.30558025552153 ],
-[ 174.86478335825018 , -154.42998763749017 ],
-[ 86.492397841041 , -130.30255745638388 ],
-[ 35.49634757714132 , -84.5116504515963 ],
-[ -21.575490228938882 , -47.185382763908756 ],
-[ -89.41640899389944 , -41.238023832435914 ],
-[ -134.88585833087137 , 91.85288769377561 ],
-[ -86.22082400707417 , 150.6062587972924 ]];
+document.getElementById('upload_circuit_form').addEventListener('click',()=>{
+    let file = document.getElementById("upload_circuit").files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+            let lines = evt.target.result;
+            new Creation(parseDXF(lines),4);
+        }
+    }
+});
 
-let outside=[
-    [ -27.676595744680853 , 100 ],
-    [ 40.05520534277126 , 59.90895433969497 ],
-    [ 181.80731919582018 , 50.98048616216857 ],
-    [ 275.5310483504903 , 42.41213831498385 ],
-    [ 296.42891095349506 , -51.53807985591879 ],
-    [ 253.8405311802395 , -139.30558025552153 ],
-    [ 179.86478335825018 , -154.42998763749017 ],
-    [ 86.492397841041 , -130.30255745638388 ],
-    [ 35.49634757714132 , -84.5116504515963 ],
-    [ -21.575490228938882 , -47.185382763908756 ],
-    [ -89.41640899389944 , -41.238023832435914 ],
-    [ -134.88585833087137 , 91.85288769377561 ],
-    [ -86.22082400707417 , 150.6062587972924 ]];
-
-console.log(Models);
-new Models.Circuit(outside,inside,4);
+function parseDXF(dxf){
+    let lines=dxf.split(/\r\n|\n/);
+    let circuit=[];
+    let spline=[];
+    let coord={"x":false,"y":false};
+    for(let line=0;line<lines.length;line++){
+        if(lines[line] === 'SEQEND'){
+            circuit.push(spline);
+            spline=[];
+        }
+        if(lines[line] === ' 10') {
+            coord.x = lines[line + 1];
+        }
+        else if(lines[line] === ' 20'){
+            coord.y = lines[line + 1];
+        }
+        else if(lines[line] === ' 30'){
+            if(coord.x != '0.0' && coord.y != '0.0'){
+                spline.push([parseFloat(coord.x),parseFloat(coord.y)]);
+                coord={"x":false,"y":false};
+            }
+        }
+    }
+    return circuit;
+}

@@ -6,6 +6,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+	<form id="upload_circuit_form" enctype="multipart/form-data">
+		<label for="upload_circuit">Sélectionnez le circuit au format .dxf</label>
+		<input type="file" id="upload_circuit" accept=".dxf"><br>
+		<input type="button" value="Importer">
+	</form>
 	<div id="container">
 		<div id="outside-lines"></div>
 		<div id="outside-points"></div>

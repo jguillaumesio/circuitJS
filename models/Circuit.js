@@ -9,12 +9,11 @@ export default class Circuit{
 	static _precedent=[];
 	static dotSize;
 
-	constructor(outside,inside,dotSize){
+	static create (outside,inside,extreme,resize,dotSize){
 		Circuit.dotSize=dotSize;
-		let extreme = Circuit.getExtremum(outside);
-		let resize = Circuit.getResize(extreme);
-		this.draw('outside',outside,extreme,resize);
-		this.draw('inside',inside,extreme,resize);
+		document.getElementById('container').style.display="block";
+		Circuit.draw('outside',outside,extreme,resize);
+		Circuit.draw('inside',inside,extreme,resize);
 		document.addEventListener('keydown', (event)=>{
 			if (event.ctrlKey && event.key === 'z') {
 				if(Circuit._precedent.length != 0){
@@ -38,17 +37,16 @@ export default class Circuit{
 		});
 	}
 
-	draw(spline,circuit,extreme,resize){
+	static draw(spline,circuit,extreme,resize){
 		circuit.forEach((coord)=>{
-			let point;
 			if(Circuit.pointNbr==0){
-				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,Circuit.pointNbr+1);
+				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,Circuit.pointNbr+1);
 			}
 			else if(Circuit.pointNbr==circuit.length-1){
-				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,0);
+				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,0);
 			}
 			else{
-				point = new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,Circuit.pointNbr+1);
+				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,Circuit.pointNbr+1);
 			}
 
 			if(Circuit.pointNbr-2>=0){
@@ -88,33 +86,6 @@ export default class Circuit{
 	    	return update;
     	}
 
-	}
-
-	static windowSize(){
-		let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-		let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		return [w,h-10];
-	}
-
-	static getResize(array){
-		let size = [Circuit.windowSize()[0]/(array[1][0]-array[0][0]+2*Circuit.dotSize),Circuit.windowSize()[1]/(array[1][1]-array[0][1]+2*Circuit.dotSize)];
-		let resize = Math.min.apply(Math,size);
-		return resize;
-	}
-
-	static getExtremum(array){
-		let extreme=[[99999,99999],[-99999,-99999]];
-		for (const i of array) {
-	 		for(let coord=0;coord<i.length;coord++){
-	 			if(i[coord] > extreme[1][coord]){
-					extreme[1][coord]=i[coord]
-	 			}
-				if(i[coord] < extreme[0][coord]){
-					extreme[0][coord]=i[coord]
-				}
-	 		}
-		}
-		return extreme
 	}
 
 	static getOffset(el){
