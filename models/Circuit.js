@@ -14,7 +14,7 @@ export default class Circuit{
 			this.create(outside,inside,extreme,resize,dotSize);
 			Circuit.circuit = this;
 		}
-		return this.circuit;
+		return Circuit.circuit;
 	}
 
 	create(outside,inside,extreme,resize,dotSize){
