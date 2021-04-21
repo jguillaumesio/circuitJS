@@ -8,7 +8,8 @@ export default class Creation{
         let outside = (resize[0]<resize[1]) ? circuit[0] : circuit[1];
         let inside = (resize[0]<resize[1]) ? circuit[1] : circuit[0];
         extreme = (resize[0]<resize[1]) ? extreme[0] : extreme[1];
-        Circuit.create(outside,inside,extreme,resize,dotSize);
+        new Circuit(outside,inside,extreme,resize,dotSize);
+        new Circuit(outside,inside,extreme,resize,dotSize);
         this._mode=0;
     }
 

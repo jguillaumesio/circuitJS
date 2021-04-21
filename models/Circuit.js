@@ -2,16 +2,26 @@ import { Point,Line } from './index.js'
 
 export default class Circuit{
 
+	static circuit = null;
+
 	static _pointList={"outside":[],"inside":[]};
 	static _lineList={"outside":[],"inside":[]};
 	static _precedent=[];
 	static dotSize;
 
-	static create (outside,inside,extreme,resize,dotSize){
+	constructor(outside,inside,extreme,resize,dotSize){
+		if(Circuit.circuit == null){
+			this.create(outside,inside,extreme,resize,dotSize);
+			Circuit.circuit = this;
+		}
+		return this.circuit;
+	}
+
+	create(outside,inside,extreme,resize,dotSize){
 		Circuit.dotSize=dotSize;
 		document.getElementById('container').style.display="block";
-		Circuit.draw('outside',outside,extreme,resize);
-		Circuit.draw('inside',inside,extreme,resize);
+		this.draw('outside',outside,extreme,resize);
+		this.draw('inside',inside,extreme,resize);
 		document.addEventListener('keydown', (event)=>{
 			if (event.ctrlKey && event.key === 'z') {
 				if(Circuit._precedent.length != 0){
@@ -35,15 +45,13 @@ export default class Circuit{
 		});
 	}
 
-	static draw(spline,circuit,extreme,resize){
+	draw(spline,circuit,extreme,resize){
 		circuit.forEach((coord)=>{
 			if(Circuit._pointList[spline].length==0){
-				let ok = new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,1);
-				console.log(ok);
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,1);
 			}
 			else if(Circuit._pointList[spline].length+1==circuit.length){
-				let ok = new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,0)
-				console.log(ok);
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,0)
 			}
 			else{
 				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,Circuit._pointList[spline].length+1);
