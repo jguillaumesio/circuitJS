@@ -4,8 +4,6 @@ export default class Circuit{
 
 	static _pointList={"outside":[],"inside":[]};
 	static _lineList={"outside":[],"inside":[]};
-	static pointNbr=0;
-	static lineNbr=0;
 	static _precedent=[];
 	static dotSize;
 
@@ -39,25 +37,25 @@ export default class Circuit{
 
 	static draw(spline,circuit,extreme,resize){
 		circuit.forEach((coord)=>{
-			if(Circuit.pointNbr==0){
-				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,Circuit.pointNbr+1);
+			if(Circuit._pointList[spline].length==0){
+				let ok = new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,1);
+				console.log(ok);
 			}
-			else if(Circuit.pointNbr==circuit.length-1){
-				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,0);
+			else if(Circuit._pointList[spline].length+1==circuit.length){
+				let ok = new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,0)
+				console.log(ok);
 			}
 			else{
-				new Point(Circuit.pointNbr,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit.pointNbr-1,Circuit.pointNbr+1);
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,Circuit._pointList[spline].length+1);
 			}
 
-			if(Circuit.pointNbr-2>=0){
-				Circuit.connect(spline,Circuit._pointList[spline][Circuit.pointNbr-2]._domObject,Circuit._pointList[spline][Circuit.pointNbr-1]._domObject);
+			if(Circuit._pointList[spline].length>=2){
+				Circuit.connect(spline,Circuit._pointList[spline][Circuit._pointList[spline].length-2]._domObject,Circuit._pointList[spline][Circuit._pointList[spline].length-1]._domObject);
 			}
-			if(Circuit.pointNbr==circuit.length){
-				Circuit.connect(spline,Circuit._pointList[spline][Circuit.pointNbr-1]._domObject,Circuit._pointList[spline][0]._domObject);
+			if(Circuit._pointList[spline].length==circuit.length){
+				Circuit.connect(spline,Circuit._pointList[spline][0]._domObject,Circuit._pointList[spline][Circuit._pointList[spline].length-1]._domObject);
 			}
 		});
-		Circuit.pointNbr=0;
-		Circuit.lineNbr=0;
 	}
 
 	static connect(spline,div1, div2, update=false, dot=Circuit.dotSize,thickness=1, color='red') {
@@ -73,7 +71,7 @@ export default class Circuit{
 	    let cy = ((y1 + y2) / 2) - (thickness / 2);
 	    let angle = Circuit.getAngle(x1,x2,y1-mid,y2+mid);
 	    if(update == false){
-	    	let line = new Line(Circuit.lineNbr,cx,cy,spline,length,angle);
+	    	let line = new Line(Circuit._lineList[spline].length,cx,cy,spline,length,angle);
 	    	document.getElementById(spline+'-lines').appendChild(line._domObject);
 	    	return line;
 	    }

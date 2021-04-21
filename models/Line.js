@@ -6,7 +6,6 @@ export default class Line extends Object{
 		this._length=length;
 		this._angle=angle;
 		this._domObject=this.htmlElement();
-		Circuit.lineNbr+=1;
 		Circuit._lineList[this._spline].push(this);
 	}
 

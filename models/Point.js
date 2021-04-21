@@ -6,7 +6,6 @@ export default class Point extends Object{
 		this._previous=previous;
 		this._next=next;
 		this._domObject=this.htmlElement();
-		Circuit.pointNbr+=1;
 		Circuit._pointList[this._spline].push(this);
 	}
 
