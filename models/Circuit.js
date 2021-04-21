@@ -2,7 +2,7 @@ import { Point,Line } from './index.js'
 
 export default class Circuit{
 
-	static circuit = null;
+	static instance = null;
 
 	static _pointList={"outside":[],"inside":[]};
 	static _lineList={"outside":[],"inside":[]};
@@ -10,11 +10,11 @@ export default class Circuit{
 	static dotSize;
 
 	constructor(outside,inside,extreme,resize,dotSize){
-		if(Circuit.circuit == null){
+		if(!Circuit.instance){
 			this.create(outside,inside,extreme,resize,dotSize);
-			Circuit.circuit = this;
+			Circuit.instance = this;
 		}
-		return Circuit.circuit;
+		return Circuit.instance;
 	}
 
 	create(outside,inside,extreme,resize,dotSize){
