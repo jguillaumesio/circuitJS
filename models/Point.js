@@ -32,21 +32,28 @@ export default class Point extends Object{
 			this._x=e.clientX;
 			this._y=e.clientY;
 			this.updateElement();
-			Circuit.connect(this._spline,Circuit._pointList[this._spline][this._previous]._domObject,this._domObject,Circuit._lineList[this._spline][this._previous]);
-			Circuit.connect(this._spline,this._domObject,Circuit._pointList[this._spline][this._next]._domObject,Circuit._lineList[this._spline][this._id]);
+			Circuit.connect(this._spline,Circuit._pointList[this._spline][this._previous]._domObject,this._domObject,false,Circuit._lineList[this._spline][this._previous]);
+			Circuit.connect(this._spline,this._domObject,Circuit._pointList[this._spline][this._next]._domObject,false,Circuit._lineList[this._spline][this._id]);
+			if(this._connectedTo){
+				Circuit.connect(this._spline,this._connectedTo._domObject,this._domObject,true,this._connectedToLine);
+				console.log(this._connectedToLine);
+			}
 		});
 	}
 
 	onClick(){
 		this._domObject.style.cursor = 'default';
 		this.addListener(this._domObject,'click',(e)=>{
-			if(Creation.selectedPoint.length == 1){
-				this._connectedTo = Creation.selectedPoint.pop();
+			if(Creation.selectedPoint){
+				this._connectedTo = Creation.selectedPoint;
 				this._connectedTo._connectedTo = this;
-				Circuit.connect(this._spline,this._connectedTo._domObject,this._domObject,false,Circuit.dotSize,1,'blue');
+				let line = Circuit.connect(this._spline,this._connectedTo._domObject,this._domObject,true,false,Circuit.dotSize,1,'blue');
+				this._connectedToLine = line;
+				this._connectedTo._connectedToLine = line;
+				Creation.selectedPoint = null;
 			}
 			else{
-				Creation.selectedPoint.push(this);
+				Creation.selectedPoint = this;
 			}
 		});
 	}
@@ -72,6 +79,7 @@ export default class Point extends Object{
 	changeMode(move){
 		this.removeAllEventListeners();
 		if(move){
+			Creation.selectedPoint = null;
 			this.onDragStart();
 			this.onDragEnd()
 		}

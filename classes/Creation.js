@@ -3,7 +3,7 @@ import { Circuit } from '../models/index.js'
 export default class Creation{
 
     static instance = null;
-    static selectedPoint = [];
+    static selectedPoint = null;
 
     constructor(circuit,dotSize){
         if(!Creation.instance){

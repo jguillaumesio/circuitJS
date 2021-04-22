@@ -6,6 +6,7 @@ export default class Circuit{
 
 	static _pointList={"outside":[],"inside":[]};
 	static _lineList={"outside":[],"inside":[]};
+	static _connectionNbr=0;
 	static _precedent=[];
 	static dotSize;
 
@@ -38,8 +39,11 @@ export default class Circuit{
 					point._y=previousState[2];
 					point.updateElement();
 
-					Circuit.connect(point._spline,previousPoint._domObject,point._domObject,line);
-					Circuit.connect(point._spline,point._domObject,nextPoint._domObject,lineTwo);
+					Circuit.connect(point._spline,previousPoint._domObject,point._domObject,false,line);
+					Circuit.connect(point._spline,point._domObject,nextPoint._domObject,false,lineTwo);
+					if(point._connectedTo){
+						Circuit.connect(point._spline,point._domObject,point._connectedTo._domObject,true,point._connectedToLine);
+					}
 				}
 			}
 		});
@@ -66,7 +70,7 @@ export default class Circuit{
 		});
 	}
 
-	static connect(spline,div1, div2, update=false, dot=Circuit.dotSize,thickness=1, color='red') {
+	static connect(spline,div1, div2,isConnection = false, update=false, dot=Circuit.dotSize,thickness=1, color='red') {
 		let mid = dot/2;
 	    let off1 = Circuit.getOffset(div1);
 	    let off2 = Circuit.getOffset(div2);
@@ -79,11 +83,19 @@ export default class Circuit{
 	    let cy = ((y1 + y2) / 2) - (thickness / 2);
 	    let angle = Circuit.getAngle(x1,x2,y1-mid,y2+mid);
 	    if(update == false){
-	    	let line = new Line(Circuit._lineList[spline].length,cx,cy,spline,length,angle,color);
-	    	document.getElementById(spline+'-lines').appendChild(line._domObject);
+	    	let line;
+	    	if(!isConnection){
+	    		line = new Line(Circuit._lineList[spline].length,cx,cy,spline,length,angle,color,isConnection);
+				document.getElementById(spline+'-lines').appendChild(line._domObject);
+			}
+	    	else{
+				line = new Line(Circuit._lineList[spline].length+Circuit._connectionNbr,cx,cy,spline,length,angle,color,isConnection);
+				document.getElementById('connections').appendChild(line._domObject);
+			}
 	    	return line;
 	    }
 	    else{
+	    	console.log(update);
 	    	update._x=cx;
 	    	update._y=cy;
 	    	update._length=length;
