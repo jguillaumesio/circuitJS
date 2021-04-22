@@ -48,13 +48,13 @@ export default class Circuit{
 	draw(spline,circuit,extreme,resize){
 		circuit.forEach((coord)=>{
 			if(Circuit._pointList[spline].length==0){
-				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,circuit.length-1,1);
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,'black',circuit.length-1,1);
 			}
 			else if(Circuit._pointList[spline].length+1==circuit.length){
-				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,0)
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,'black',Circuit._pointList[spline].length-1,0)
 			}
 			else{
-				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,Circuit._pointList[spline].length-1,Circuit._pointList[spline].length+1);
+				new Point(Circuit._pointList[spline].length,(coord[0]-extreme[0][0])*resize,(coord[1]-extreme[0][1])*resize,spline,'black',Circuit._pointList[spline].length-1,Circuit._pointList[spline].length+1);
 			}
 
 			if(Circuit._pointList[spline].length>=2){
@@ -79,7 +79,7 @@ export default class Circuit{
 	    let cy = ((y1 + y2) / 2) - (thickness / 2);
 	    let angle = Circuit.getAngle(x1,x2,y1-mid,y2+mid);
 	    if(update == false){
-	    	let line = new Line(Circuit._lineList[spline].length,cx,cy,spline,length,angle);
+	    	let line = new Line(Circuit._lineList[spline].length,cx,cy,spline,length,angle,color);
 	    	document.getElementById(spline+'-lines').appendChild(line._domObject);
 	    	return line;
 	    }

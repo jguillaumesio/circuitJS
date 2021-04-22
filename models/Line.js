@@ -1,8 +1,8 @@
 import { Object,Circuit } from './index.js';
 
 export default class Line extends Object{
-	constructor(id,x,y,spline,length,angle){
-		super(id,x,y,spline);
+	constructor(id,x,y,spline,length,angle,color){
+		super(id,x,y,spline,color);
 		this._length=length;
 		this._angle=angle;
 		this._domObject=this.htmlElement();
